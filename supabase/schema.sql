@@ -157,11 +157,12 @@ create policy "Users manage own plan_exercises" on public.plan_exercises for all
   with check (exists (select 1 from public.split_days sd join public.splits s on s.id = sd.split_id where sd.id = split_day_id and s.user_id = auth.uid()));
 
 -- Workouts + sets
-create policy "Users manage own workouts"  on public.workouts       for all using (auth.uid() = user_id);
+create policy "Users manage own workouts"  on public.workouts       for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "Users manage own sets"      on public.sets           for all
-  using (exists (select 1 from public.workouts w where w.id = workout_id and w.user_id = auth.uid()));
-create policy "Users manage own 1rms"      on public.estimated_1rms for all using (auth.uid() = user_id);
-create policy "Users manage own alerts"    on public.plateau_alerts  for all using (auth.uid() = user_id);
+  using (exists (select 1 from public.workouts w where w.id = workout_id and w.user_id = auth.uid()))
+  with check (exists (select 1 from public.workouts w where w.id = workout_id and w.user_id = auth.uid()));
+create policy "Users manage own 1rms"      on public.estimated_1rms for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "Users manage own alerts"    on public.plateau_alerts  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- Exercises: everyone can read the global library
 create policy "Anyone can read exercises"  on public.exercises for select using (true);

@@ -19,24 +19,21 @@ import NotFoundPage from '@/pages/NotFoundPage'
 import AppLayout from '@/components/layout/AppLayout'
 
 // Route guards
-function PrivateRoute({ children }) {
-  const { user } = useAuthStore()
-  return user ? children : <Navigate to="/login" replace />
+function PrivateRoute({ children, requireOnboarding = false }) {
+  const { user, profile } = useAuthStore()
+  if (!user) return <Navigate to="/login" replace />
+  // Redirect to onboarding if not yet done (skip if we're already on /onboarding)
+  if (requireOnboarding && profile !== null && !profile?.onboarding_done) {
+    return <Navigate to="/onboarding" replace />
+  }
+  return children
 }
 
 function PublicOnlyRoute({ children }) {
-  const { user } = useAuthStore()
-
-  if (user) {
-    // Check if user just signed up and needs onboarding
-    if (localStorage.getItem('reppo_onboarding') === 'true') {
-      localStorage.removeItem('reppo_onboarding')
-      return <Navigate to="/onboarding" replace />
-    }
-    return <Navigate to="/app" replace />
-  }
-
-  return children
+  const { user, profile } = useAuthStore()
+  if (!user) return children
+  if (profile !== null && !profile?.onboarding_done) return <Navigate to="/onboarding" replace />
+  return <Navigate to="/app" replace />
 }
 
 export default function App() {
@@ -65,7 +62,7 @@ export default function App() {
       <Route path="/onboarding" element={<PrivateRoute><OnboardPage /></PrivateRoute>} />
 
       {/* App — auth required, with sidebar layout */}
-      <Route path="/app" element={<PrivateRoute><AppLayout /></PrivateRoute>}>
+      <Route path="/app" element={<PrivateRoute requireOnboarding><AppLayout /></PrivateRoute>}>
         <Route index element={<DashboardPage />} />
         <Route path="workout" element={<WorkoutPage />} />
         <Route path="workout/complete" element={<SessionCompletePage />} />

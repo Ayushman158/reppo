@@ -1,21 +1,38 @@
 import { create } from 'zustand'
 import { supabase } from '@/lib/supabase'
 
+async function fetchProfile(userId) {
+  const { data } = await supabase
+    .from('profiles')
+    .select('onboarding_done')
+    .eq('id', userId)
+    .single()
+  return data
+}
+
 export const useAuthStore = create((set, get) => ({
   user: null,
   session: null,
+  profile: null,
   loading: true,
 
   // ── Initialize: check existing session on app load ──────
   init: async () => {
     const { data: { session } } = await supabase.auth.getSession()
-    set({ session, user: session?.user ?? null, loading: false })
+    const user = session?.user ?? null
+    const profile = user ? await fetchProfile(user.id) : null
+    set({ session, user, profile, loading: false })
 
     // Listen for auth changes (login, logout, token refresh)
-    supabase.auth.onAuthStateChange((_event, session) => {
-      set({ session, user: session?.user ?? null })
+    supabase.auth.onAuthStateChange(async (_event, session) => {
+      const user = session?.user ?? null
+      const profile = user ? await fetchProfile(user.id) : null
+      set({ session, user, profile })
     })
   },
+
+  // ── Mark onboarding done locally (avoid re-fetch) ───────
+  setOnboardingDone: () => set(s => ({ profile: { ...s.profile, onboarding_done: true } })),
 
   // ── Sign up ──────────────────────────────────────────────
   signUp: async ({ email, password, name }) => {
