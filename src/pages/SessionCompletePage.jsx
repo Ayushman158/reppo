@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { toBlob } from 'html-to-image'
 import { useWorkoutStore } from '@/store/workoutStore'
 import './SessionCompletePage.css'
 
@@ -10,6 +11,7 @@ export default function SessionCompletePage() {
     const [statsVisible, setStatsVisible] = useState(false)
     const [streakVisible, setStreakVisible] = useState(false)
     const [streakCount, setStreakCount] = useState(0)
+    const [isSharing, setIsSharing] = useState(false)
 
     useEffect(() => {
         if (!completedSession) {
@@ -103,6 +105,42 @@ export default function SessionCompletePage() {
                 )}
 
                 <div className="complete-actions animate-fade-up" style={{ animationDelay: '3s', animationFillMode: 'both' }}>
+                    <button
+                        className="share-btn flex items-center justify-center gap-2 mb-4"
+                        onClick={async () => {
+                            if (isSharing) return
+                            setIsSharing(true)
+                            try {
+                                const node = document.querySelector('.content-layer')
+                                const blob = await toBlob(node, {
+                                    backgroundColor: '#FAFAF8', // --paper
+                                    style: { padding: '40px', borderRadius: '0px' },
+                                    pixelRatio: 2
+                                })
+                                if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], 'workout.png', { type: 'image/png' })] })) {
+                                    await navigator.share({
+                                        title: 'My Reppo Workout',
+                                        text: `Just crushed it on Reppo! ${volume}kg volume, ${prCount} PRs.`,
+                                        files: [new File([blob], 'workout.png', { type: 'image/png' })]
+                                    })
+                                } else {
+                                    // Fallback download
+                                    const url = URL.createObjectURL(blob)
+                                    const a = document.createElement('a')
+                                    a.href = url
+                                    a.download = 'reppo-workout.png'
+                                    a.click()
+                                    URL.revokeObjectURL(url)
+                                }
+                            } catch (e) {
+                                console.error('Share failed', e)
+                            } finally {
+                                setIsSharing(false)
+                            }
+                        }}
+                    >
+                        {isSharing ? 'Generating...' : 'Share Workout ↗'}
+                    </button>
                     <button
                         className="complete-done-btn"
                         onClick={() => {

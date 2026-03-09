@@ -140,6 +140,26 @@
     margin-right: auto;
 }
 
+.share-btn {
+    width: 100%;
+    padding: 18px;
+    background: var(--target);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-xl);
+    font-size: var(--text-lg);
+    font-weight: 700;
+    cursor: pointer;
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+    transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity var(--ease);
+}
+
+.share-btn:active {
+    transform: scale(0.97);
+    opacity: 0.9;
+}
+
 .complete-done-btn {
     width: 100%;
     padding: 18px;

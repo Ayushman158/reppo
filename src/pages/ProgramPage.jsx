@@ -66,11 +66,18 @@ export default function ProgramPage() {
 
     if (!activeSplit) {
         return (
-            <div className="program-container flex-col flex-center text-center">
-                <div className="text-4xl mb-4">📋</div>
-                <h2 className="font-display text-2xl mb-2">No Active Program</h2>
-                <p className="text-ink2 mb-6">Create a new program to start logging sessions.</p>
-                <Button onClick={() => navigate('/onboarding')}>Create Program Template</Button>
+            <div className="program-container">
+                <header className="program-header mb-8">
+                    <h1 className="font-display text-4xl">Program</h1>
+                </header>
+                <div className="day-card" style={{ backgroundColor: 'var(--target-bg)', borderColor: 'var(--target)', borderWidth: 1, borderStyle: 'dashed', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: 'var(--space-8)' }}>
+                    <div className="text-4xl mb-4">📋</div>
+                    <h2 className="font-display text-2xl mb-2 text-ink">No Active Program</h2>
+                    <p className="text-sm text-ink2 mb-6">Create a new program template to generate your daily targets and begin tracking your sessions.</p>
+                    <button className="complete-done-btn" style={{ backgroundColor: 'var(--target)', color: '#fff', padding: '12px 24px', width: 'auto' }} onClick={() => navigate('/onboarding')}>
+                        Create Program →
+                    </button>
+                </div>
             </div>
         )
     }

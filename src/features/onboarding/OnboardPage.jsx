@@ -171,18 +171,18 @@ export default function OnboardPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg)' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--paper)' }}>
       {/* Progress bar */}
-      <div style={{ height: 3, background: 'var(--bg3)', position: 'fixed', top: 0, left: 0, right: 0, zIndex: 200 }}>
-        <div style={{ height: '100%', background: 'var(--brand)', width: `${pct}%`, transition: 'width 0.5s ease', borderRadius: '0 2px 2px 0' }} />
+      <div style={{ height: 3, background: 'var(--paper3)', position: 'fixed', top: 0, left: 0, right: 0, zIndex: 200 }}>
+        <div style={{ height: '100%', background: 'var(--target)', width: `${pct}%`, transition: 'width 0.5s ease', borderRadius: '0 2px 2px 0' }} />
       </div>
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 40px 0' }}>
         <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 22, letterSpacing: '-0.02em' }}>
-          REP<span style={{ color: 'var(--brand)' }}>PO</span>
+          REP<span style={{ color: 'var(--target)' }}>PO</span>
         </div>
-        <div style={{ fontSize: 13, color: 'var(--text3)', fontFamily: 'var(--font-mono)' }}>Step {step} of {totalSteps}</div>
+        <div style={{ fontSize: 13, color: 'var(--ink3)', fontFamily: 'var(--font-mono)' }}>Step {step} of {totalSteps}</div>
       </div>
 
       {/* Content */}
@@ -191,13 +191,13 @@ export default function OnboardPage() {
         {/* ── Step 1: tap to select, auto-advances ── */}
         {step === 1 && (
           <div className="animate-fade-in">
-            <span style={{ display: 'inline-block', padding: '2px 8px', background: 'var(--bg4)', border: '1px solid var(--border2)', borderRadius: 4, fontSize: 11, fontWeight: 600, color: 'var(--text3)', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-mono)', marginBottom: 16 }}>
+            <span style={{ display: 'inline-block', padding: '2px 8px', background: 'var(--paper3)', border: '1px solid var(--border2)', borderRadius: 4, fontSize: 11, fontWeight: 600, color: 'var(--ink3)', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-mono)', marginBottom: 16 }}>
               Step 1 · Training Structure
             </span>
             <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 38, fontWeight: 900, lineHeight: 1, letterSpacing: '-0.02em', marginBottom: 10 }}>
               How do you train?
             </h1>
-            <p style={{ color: 'var(--text2)', fontSize: 15, marginBottom: 28, lineHeight: 1.6 }}>
+            <p style={{ color: 'var(--ink2)', fontSize: 15, marginBottom: 28, lineHeight: 1.6 }}>
               Tap to select — Reppo sets up your rotation automatically.
             </p>
             {error && (
@@ -211,15 +211,15 @@ export default function OnboardPage() {
                   key={s.id}
                   onClick={() => { setSplit(s.id); handleStep1(s.id) }}
                   disabled={saving}
-                  style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '18px 20px', border: `1px solid ${split === s.id ? 'var(--brand)' : 'var(--border)'}`, borderRadius: 'var(--radius-lg)', background: split === s.id ? 'var(--brand-dim)' : 'var(--bg2)', cursor: saving ? 'default' : 'pointer', transition: 'all var(--ease)', width: '100%', textAlign: 'left' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '18px 20px', border: `1px solid ${split === s.id ? 'var(--target)' : 'var(--border)'}`, borderRadius: 'var(--radius-lg)', background: split === s.id ? 'var(--target-bg)' : 'var(--paper2)', cursor: saving ? 'default' : 'pointer', transition: 'all var(--ease)', width: '100%', textAlign: 'left' }}
                 >
                   <div style={{ fontSize: 26 }}>{s.icon}</div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 2, color: 'var(--text)' }}>{s.label}</div>
-                    <div style={{ fontSize: 13, color: 'var(--text2)' }}>{s.desc}</div>
+                    <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 2, color: 'var(--ink)' }}>{s.label}</div>
+                    <div style={{ fontSize: 13, color: 'var(--ink2)' }}>{s.desc}</div>
                   </div>
                   {saving && split === s.id && (
-                    <span style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.2)', borderTopColor: 'var(--brand)', borderRadius: '50%', display: 'inline-block' }} className="animate-spin" />
+                    <span style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.2)', borderTopColor: 'var(--target)', borderRadius: '50%', display: 'inline-block' }} className="animate-spin" />
                   )}
                 </button>
               ))}
@@ -230,13 +230,13 @@ export default function OnboardPage() {
         {/* ── Step 2: exercises + optional 1RMs on one screen ── */}
         {step === 2 && (
           <div className="animate-fade-in">
-            <span style={{ display: 'inline-block', padding: '2px 8px', background: 'var(--bg4)', border: '1px solid var(--border2)', borderRadius: 4, fontSize: 11, fontWeight: 600, color: 'var(--text3)', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-mono)', marginBottom: 16 }}>
+            <span style={{ display: 'inline-block', padding: '2px 8px', background: 'var(--paper3)', border: '1px solid var(--border2)', borderRadius: 4, fontSize: 11, fontWeight: 600, color: 'var(--ink3)', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-mono)', marginBottom: 16 }}>
               Step 2 · Your Program
             </span>
             <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 38, fontWeight: 900, lineHeight: 1, letterSpacing: '-0.02em', marginBottom: 8 }}>
               Confirm your exercises
             </h1>
-            <p style={{ color: 'var(--text2)', fontSize: 15, marginBottom: 24, lineHeight: 1.6 }}>
+            <p style={{ color: 'var(--ink2)', fontSize: 15, marginBottom: 24, lineHeight: 1.6 }}>
               Tap to remove exercises you don't do.
             </p>
 
@@ -249,7 +249,7 @@ export default function OnboardPage() {
             {/* Day tabs */}
             <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
               {Object.keys(PPL_EXERCISES).map(day => (
-                <button key={day} onClick={() => setActiveDay(day)} style={{ padding: '8px 14px', background: activeDay === day ? 'var(--brand)' : 'transparent', border: `1px solid ${activeDay === day ? 'var(--brand)' : 'var(--border)'}`, borderRadius: 'var(--radius)', color: activeDay === day ? '#fff' : 'var(--text2)', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-base)', transition: 'all var(--ease)' }}>
+                <button key={day} onClick={() => setActiveDay(day)} style={{ padding: '8px 14px', background: activeDay === day ? 'var(--target)' : 'transparent', border: `1px solid ${activeDay === day ? 'var(--target)' : 'var(--border)'}`, borderRadius: 'var(--radius)', color: activeDay === day ? '#fff' : 'var(--ink2)', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-base)', transition: 'all var(--ease)' }}>
                   {day}
                 </button>
               ))}
@@ -259,9 +259,9 @@ export default function OnboardPage() {
               {PPL_EXERCISES[activeDay].map(ex => {
                 const sel = isSelected(activeDay, ex)
                 return (
-                  <div key={ex} onClick={() => toggleEx(activeDay, ex)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', border: `1px solid ${sel ? 'var(--brand)' : 'var(--border)'}`, borderRadius: 'var(--radius)', background: sel ? 'var(--brand-dim)' : 'var(--bg3)', cursor: 'pointer', transition: 'all 0.12s' }}>
-                    <span style={{ fontWeight: 500, fontSize: 15, color: 'var(--text)' }}>{ex}</span>
-                    <div style={{ width: 22, height: 22, borderRadius: '50%', border: `2px solid ${sel ? 'var(--brand)' : 'var(--border2)'}`, background: sel ? 'var(--brand)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <div key={ex} onClick={() => toggleEx(activeDay, ex)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', border: `1px solid ${sel ? 'var(--target)' : 'var(--border)'}`, borderRadius: 'var(--radius)', background: sel ? 'var(--target-bg)' : 'var(--paper3)', cursor: 'pointer', transition: 'all 0.12s' }}>
+                    <span style={{ fontWeight: 500, fontSize: 15, color: 'var(--ink)' }}>{ex}</span>
+                    <div style={{ width: 22, height: 22, borderRadius: '50%', border: `2px solid ${sel ? 'var(--target)' : 'var(--border2)'}`, background: sel ? 'var(--target)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       {sel && <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
                     </div>
                   </div>
@@ -271,16 +271,16 @@ export default function OnboardPage() {
 
             {/* Optional 1RM seeding */}
             <div style={{ marginBottom: 28 }}>
-              <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
                 OPTIONAL — Seed your strength (5-rep working weight)
               </div>
-              <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '4px 20px' }}>
+              <div style={{ background: 'var(--paper2)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '4px 20px' }}>
                 {KEY_LIFTS.map((lift, i) => {
                   const val = strengths[lift.id]
                   const est = val && parseFloat(val) > 0 ? roundToPlate(epley(parseFloat(val), 5)) : null
                   return (
                     <div key={lift.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 0', borderBottom: i < KEY_LIFTS.length - 1 ? '1px solid var(--border)' : 'none' }}>
-                      <div style={{ flex: 1, fontWeight: 600, fontSize: 14, color: 'var(--text)' }}>{lift.label}</div>
+                      <div style={{ flex: 1, fontWeight: 600, fontSize: 14, color: 'var(--ink)' }}>{lift.label}</div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <input
                           type="number"
@@ -288,12 +288,12 @@ export default function OnboardPage() {
                           value={val}
                           onChange={e => setStrengths(p => ({ ...p, [lift.id]: e.target.value }))}
                           step="2.5"
-                          style={{ width: 72, padding: '7px 10px', background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', color: 'var(--text)', fontFamily: 'var(--font-mono)', fontSize: 16, fontWeight: 500, textAlign: 'center', outline: 'none' }}
+                          style={{ width: 72, padding: '7px 10px', background: 'var(--paper3)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', color: 'var(--ink)', fontFamily: 'var(--font-mono)', fontSize: 16, fontWeight: 500, textAlign: 'center', outline: 'none' }}
                         />
-                        <span style={{ fontSize: 13, color: 'var(--text3)', fontFamily: 'var(--font-mono)' }}>kg</span>
+                        <span style={{ fontSize: 13, color: 'var(--ink3)', fontFamily: 'var(--font-mono)' }}>kg</span>
                       </div>
                       {est && (
-                        <span style={{ padding: '3px 8px', background: 'var(--brand-dim)', border: '1px solid rgba(79,126,255,0.25)', borderRadius: 20, fontSize: 11, fontWeight: 600, color: 'var(--brand)', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
+                        <span style={{ padding: '3px 8px', background: 'var(--target-bg)', border: '1px solid rgba(79,126,255,0.25)', borderRadius: 20, fontSize: 11, fontWeight: 600, color: 'var(--target)', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
                           ~{est}kg 1RM
                         </span>
                       )}
@@ -304,8 +304,8 @@ export default function OnboardPage() {
             </div>
 
             <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setStep(1)} disabled={saving} style={{ padding: '14px 20px', background: 'transparent', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', color: 'var(--text2)', fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-base)' }}>← Back</button>
-              <button onClick={handleLaunch} disabled={saving} style={{ flex: 1, padding: 14, background: 'var(--brand)', border: 'none', borderRadius: 'var(--radius-lg)', color: '#fff', fontSize: 16, fontWeight: 600, cursor: saving ? 'default' : 'pointer', fontFamily: 'var(--font-base)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              <button onClick={() => setStep(1)} disabled={saving} style={{ padding: '14px 20px', background: 'transparent', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', color: 'var(--ink2)', fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-base)' }}>← Back</button>
+              <button onClick={handleLaunch} disabled={saving} style={{ flex: 1, padding: 14, background: 'var(--target)', border: 'none', borderRadius: 'var(--radius-lg)', color: '#fff', fontSize: 16, fontWeight: 600, cursor: saving ? 'default' : 'pointer', fontFamily: 'var(--font-base)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                 {saving
                   ? <><span className="animate-spin" style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%' }} /> Setting up…</>
                   : 'Launch Reppo →'}
@@ -313,7 +313,7 @@ export default function OnboardPage() {
             </div>
 
             <div style={{ textAlign: 'center', marginTop: 14 }}>
-              <span onClick={!saving ? handleSkip : undefined} style={{ fontSize: 13, color: 'var(--text3)', cursor: saving ? 'default' : 'pointer' }}>
+              <span onClick={!saving ? handleSkip : undefined} style={{ fontSize: 13, color: 'var(--ink3)', cursor: saving ? 'default' : 'pointer' }}>
                 Skip — let Reppo learn from my sessions
               </span>
             </div>

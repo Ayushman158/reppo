@@ -38,11 +38,35 @@ function RestSweep({ secondsRemaining, totalSeconds, onSkip }) {
     )
 }
 
+// ─── PLATE CALCULATOR ──────────────────────────────────────────
+function calculatePlates(targetWeight) {
+    if (!targetWeight || targetWeight <= 20) return []
+    // standard 20kg bar
+    let remainingPerSide = (targetWeight - 20) / 2
+    const availablePlates = [25, 20, 15, 10, 5, 2.5, 1.25]
+    const platesToUse = []
+
+    for (const p of availablePlates) {
+        while (remainingPerSide >= p) {
+            platesToUse.push(p)
+            remainingPerSide -= p
+        }
+    }
+    return platesToUse
+}
+
 // ─── SET ROW ─────────────────────────────────────────────────
 
 function SetRow({ setIndex, weight, reps, isDone, onEdit, onToggle, targetWeight, targetReps, isPr }) {
     const displayWeight = weight ?? targetWeight ?? 0
     const displayReps = reps ?? targetReps ?? 0
+
+    const triggerHaptic = () => {
+        if (!isDone && navigator.vibrate) {
+            navigator.vibrate([15, 30, 15]) // rewarding double-tap haptic
+        }
+        onToggle(displayWeight, displayReps)
+    }
 
     return (
         <div className={`set-row ${isDone ? 'done' : ''} ${isPr ? 'pr-burst' : ''}`}>
@@ -54,7 +78,7 @@ function SetRow({ setIndex, weight, reps, isDone, onEdit, onToggle, targetWeight
             </div>
             <button
                 className={`set-check ${isDone ? 'checked' : ''}`}
-                onClick={() => onToggle(displayWeight, displayReps)}
+                onClick={triggerHaptic}
                 aria-label={isDone ? 'Unlog set' : 'Log set'}
             >
                 {isDone && <span className="animate-check-fill">✓</span>}
@@ -108,6 +132,8 @@ function ExerciseBlock({ planEx }) {
     }
 
     const showTimer = restTimerExerciseId === planEx.exercise_id && restTimer > 0
+    const isBarbell = planEx.equipment === 'barbell' || planEx.name.toLowerCase().includes('barbell') || planEx.name.toLowerCase().includes('squat') || planEx.name.toLowerCase().includes('deadlift')
+    const calculatedPlates = isBarbell && targetW > 20 ? calculatePlates(targetW) : []
 
     return (
         <div className={`exercise-block ${allDone ? 'ex-complete' : ''}`}>
@@ -120,11 +146,18 @@ function ExerciseBlock({ planEx }) {
                         </div>
                     )}
                 </div>
-                {target && (
-                    <div className="ex-ai-target font-mono">
-                        {target.weightHigh}kg × {target.repHigh}
-                    </div>
-                )}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                    {target && (
+                        <div className="ex-ai-target font-mono">
+                            {target.weightHigh}kg × {target.repHigh}
+                        </div>
+                    )}
+                    {calculatedPlates.length > 0 && (
+                        <div className="plate-math-row animate-fade-in font-mono text-xs mt-1" style={{ color: 'var(--ink3)' }}>
+                            [{calculatedPlates.join(', ')}]
+                        </div>
+                    )}
+                </div>
             </div>
 
             <div className="sets-container">{rows}</div>
@@ -155,6 +188,7 @@ function ExerciseBlock({ planEx }) {
                             weight: Number(editingSet.weight),
                             reps: Number(editingSet.reps),
                         })
+                        if (navigator.vibrate) navigator.vibrate(10) // light haptic on edit save
                         setEditingSet(null)
                     }}>Done</button>
                 </div>

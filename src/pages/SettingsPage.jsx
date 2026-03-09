@@ -92,7 +92,7 @@ export default function SettingsPage() {
                 <div style={{ marginTop: 28 }}>
                     <button
                         onClick={handleSignOut}
-                        style={{ width: '100%', padding: '14px 20px', background: 'transparent', border: '1px solid rgba(220,38,38,0.3)', borderRadius: 'var(--radius-md)', color: 'var(--red)', fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-sans)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                        style={{ width: '100%', padding: '14px 20px', background: 'transparent', border: '1px dashed var(--red)', borderRadius: 'var(--radius-md)', color: 'var(--red)', fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-sans)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                     >
                         <Icon icon="ph:sign-out-bold" />
                         Sign Out

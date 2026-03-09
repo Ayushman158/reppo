@@ -77,11 +77,14 @@ function TodaysNote({ splitDay, planExercises }) {
 
     if (!splitDay) {
         return (
-            <div className="note-card">
-                <div className="note-title text-ink3">No active plan</div>
-                <p className="text-sm text-ink2 mb-4">Set up a program to get started.</p>
-                <button className="start-btn" onClick={() => navigate('/app/program')}>
-                    Create Program
+            <div className="note-card pinned animate-fade-up" style={{ backgroundColor: 'var(--target-bg)', borderColor: 'var(--target)', borderWidth: 1, borderStyle: 'dashed' }}>
+                <div className="note-meta">
+                    <span className="text-target">WELCOME</span>
+                </div>
+                <div className="note-title text-ink mb-2">Build Your Routine</div>
+                <p className="text-sm text-ink2 mb-6">Select or create a training program to generate your daily targets and begin tracking.</p>
+                <button className="start-btn" style={{ backgroundColor: 'var(--target)', color: '#fff' }} onClick={() => navigate('/app/program')}>
+                    Set up Program →
                 </button>
             </div>
         )
@@ -118,7 +121,16 @@ function TodaysNote({ splitDay, planExercises }) {
 }
 
 function PastSessions({ workouts }) {
-    if (!workouts?.length) return null
+    if (!workouts || workouts.length === 0) {
+        return (
+            <div className="animate-fade-up" style={{ animationDelay: '0.1s', marginTop: 'var(--space-8)' }}>
+                <div className="section-label">Past Notes</div>
+                <div className="text-sm text-ink3 italic" style={{ padding: 'var(--space-4)', border: '1px dashed var(--border2)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+                    No sessions logged yet. Your journal awaits!
+                </div>
+            </div>
+        )
+    }
 
     return (
         <div className="animate-fade-up" style={{ animationDelay: '0.1s' }}>
@@ -158,7 +170,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="skeleton-block" style={{ height: 44, borderRadius: 100, marginBottom: 24 }} />
                 <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
-                    {[0,1,2].map(i => <div key={i} className="skeleton-block" style={{ height: 64, flex: 1, borderRadius: 'var(--radius-xl)' }} />)}
+                    {[0, 1, 2].map(i => <div key={i} className="skeleton-block" style={{ height: 64, flex: 1, borderRadius: 'var(--radius-xl)' }} />)}
                 </div>
                 <div className="skeleton-block" style={{ height: 200, borderRadius: 'var(--radius-lg)' }} />
             </div>
