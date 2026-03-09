@@ -1,0 +1,49 @@
+.exercise-page-container {
+    padding: env(safe-area-inset-top, 0) var(--space-4) 100px var(--space-4);
+    max-width: 600px;
+    margin: 0 auto;
+    min-height: 100vh;
+}
+
+.ex-page-header {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    margin-bottom: var(--space-4);
+}
+
+.ex-title-group {
+    margin-bottom: var(--space-8);
+}
+
+.tracking-2 {
+    letter-spacing: 0.1em;
+}
+
+.chart-card {
+    background: var(--paper2);
+    border: 1px dashed var(--border2);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4) var(--space-2) var(--space-2) var(--space-2);
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.history-item {
+    background: var(--paper);
+    border-bottom: 1px solid var(--border);
+    padding: var(--space-4) 4px;
+    transition: background var(--ease);
+    cursor: pointer;
+}
+
+.history-item:active {
+    background: var(--paper2);
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}

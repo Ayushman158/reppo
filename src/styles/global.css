@@ -1,0 +1,524 @@
+/* ─── FONTS ──────────────────────────────────────────────── */
+/* Loaded via index.html link tag for performance */
+
+/* ─── RESET ──────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ─── DESIGN TOKENS ──────────────────────────────────────── */
+:root {
+  /* LIGHT MODE (Warm Paper) */
+  --paper: #FAFAF8;
+  --paper2: #F2F2EF;
+  --paper3: #E8E8E4;
+  --ruled: #EBEBЕ8;
+  --ink: #1A1A18;
+  --ink2: #5C5C58;
+  --ink3: #ADADAA;
+  --gold: #C9A84C;
+  --gold-bg: #FBF5E6;
+  --target: #2563EB;
+  --target-bg: #EFF4FF;
+  --done: #16A34A;
+  --done-bg: #F0FDF4;
+  --red: #DC2626;
+  --border: rgba(0, 0, 0, 0.07);
+  --border2: rgba(0, 0, 0, 0.12);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+  --shadow-lift: 0 8px 32px rgba(0, 0, 0, 0.12);
+
+  /* Typography */
+  --font-sans: -apple-system, "SF Pro Text", BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "DM Mono", "SF Mono", "Fira Code", monospace;
+  --font-display: -apple-system, "SF Pro Display", BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  /* Font Scale */
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-md: 17px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
+  --text-3xl: 44px;
+
+  /* Line Heights */
+  --leading-xs: 1.4;
+  --leading-sm: 1.5;
+  --leading-base: 1.6;
+  --leading-md: 1.5;
+  --leading-lg: 1.4;
+  --leading-xl: 1.3;
+  --leading-2xl: 1.2;
+  --leading-3xl: 1.1;
+
+  /* Tracking */
+  --tracking-xs: 0.04em;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  /* Transitions */
+  --ease: 0.15s ease;
+  --ease-md: 0.25s ease;
+
+  /* Spacing Scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-9: 36px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Landing page dark tokens (used by LandingPage only) */
+  --bg: #0A0A0B;
+  --bg2: #111113;
+  --brand: #4F7EFF;
+  --brand-dim: rgba(79, 126, 255, 0.08);
+  --text2: #A1A1AA;
+  --text3: #71717A;
+  --amber: #F59E0B;
+  --amber-dim: rgba(245, 158, 11, 0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #141412;
+    --paper2: #1C1C1A;
+    --paper3: #242420;
+    --ruled: #2A2A26;
+    --ink: #F2F2EE;
+    --ink2: #A0A09A;
+    --ink3: #606058;
+    --gold: #D4AA5A;
+    --gold-bg: #1F1A0D;
+    --target: #5B8DEF;
+    --target-bg: #0D1629;
+    --done: #22C55E;
+    --done-bg: #0A1F10;
+    --border: rgba(255, 255, 255, 0.07);
+    --border2: rgba(255, 255, 255, 0.12);
+  }
+}
+
+.dark {
+  --paper: #141412;
+  --paper2: #1C1C1A;
+  --paper3: #242420;
+  --ruled: #2A2A26;
+  --ink: #F2F2EE;
+  --ink2: #A0A09A;
+  --ink3: #606058;
+  --gold: #D4AA5A;
+  --gold-bg: #1F1A0D;
+  --target: #5B8DEF;
+  --target-bg: #0D1629;
+  --done: #22C55E;
+  --done-bg: #0A1F10;
+  --border: rgba(255, 255, 255, 0.07);
+  --border2: rgba(255, 255, 255, 0.12);
+}
+
+/* ─── BASE ───────────────────────────────────────────────── */
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-weight: 400;
+  line-height: var(--leading-base);
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* ─── TYPOGRAPHY ─────────────────────────────────────────── */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--ink);
+}
+
+p {
+  line-height: var(--leading-base);
+}
+
+a {
+  color: var(--target);
+  text-decoration: none;
+  transition: opacity var(--ease);
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+/* ─── SCROLLBAR ──────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border2);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ink3);
+}
+
+/* ─── UTILITY CLASSES ────────────────────────────────────── */
+.font-display {
+  font-family: var(--font-display) !important;
+}
+
+.font-mono {
+  font-family: var(--font-mono) !important;
+}
+
+.font-sans {
+  font-family: var(--font-sans) !important;
+}
+
+.text-target {
+  color: var(--target);
+}
+
+.text-done {
+  color: var(--done);
+}
+
+.text-gold {
+  color: var(--gold);
+}
+
+.text-red {
+  color: var(--red);
+}
+
+.text-ink {
+  color: var(--ink);
+}
+
+.text-ink2 {
+  color: var(--ink2);
+}
+
+.text-ink3 {
+  color: var(--ink3);
+}
+
+/* Typography Scales */
+.text-xs {
+  font-size: var(--text-xs);
+  line-height: var(--leading-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-xs);
+}
+
+.text-sm {
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+
+.text-base {
+  font-size: var(--text-base);
+  line-height: var(--leading-base);
+}
+
+.text-md {
+  font-size: var(--text-md);
+  line-height: var(--leading-md);
+  font-weight: 500;
+}
+
+.text-lg {
+  font-size: var(--text-lg);
+  line-height: var(--leading-lg);
+  font-weight: 600;
+}
+
+.text-xl {
+  font-size: var(--text-xl);
+  line-height: var(--leading-xl);
+  font-weight: 700;
+}
+
+.text-2xl {
+  font-size: var(--text-2xl);
+  line-height: var(--leading-2xl);
+  font-weight: 700;
+}
+
+.text-3xl {
+  font-size: var(--text-3xl);
+  line-height: var(--leading-3xl);
+  font-weight: 700;
+}
+
+/* ─── ANIMATIONS ─────────────────────────────────────────── */
+@keyframes checkFill {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes rowComplete {
+  0% {
+    background: transparent;
+  }
+
+  30% {
+    background: var(--done-bg);
+  }
+
+  100% {
+    background: transparent;
+  }
+}
+
+@keyframes prGlow {
+  0% {
+    background: var(--gold-bg);
+    box-shadow: none;
+  }
+
+  50% {
+    background: var(--gold-bg);
+    box-shadow: 0 0 20px rgba(201, 168, 76, 0.3);
+  }
+
+  100% {
+    background: var(--gold-bg);
+    box-shadow: none;
+  }
+}
+
+@keyframes prBurst {
+  0% {
+    transform: translate(0, 0) scale(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(var(--bx), var(--by)) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes sheetSlideUp {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes toastIn {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes sessionComplete {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes restBarFill {
+  from {
+    width: 0%;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes numberSlideUp {
+  from {
+    transform: translateY(60%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes springIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  60% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.35s ease both;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease both;
+}
+
+.animate-spring-in {
+  animation: springIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+.animate-check-fill {
+  animation: checkFill 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+.animate-row-complete {
+  animation: rowComplete 0.6s ease both;
+}
+
+.animate-session-complete {
+  animation: sessionComplete 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+.animate-number-slide {
+  animation: numberSlideUp 0.2s ease-out both;
+}
+
+/* ─── LAYOUT UTILITIES ───────────────────────────────────── */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.items-baseline { align-items: baseline; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.gap-1 { gap: 4px; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; }
+.gap-6 { gap: 24px; }
+.w-12 { width: 48px; }
+.w-16 { width: 64px; }
+.opacity-60 { opacity: 0.6; }
+
+/* Margin utilities */
+.mt-1 { margin-top: 4px; }
+.mt-4 { margin-top: 16px; }
+.mt-8 { margin-top: 32px; }
+.mb-4 { margin-bottom: 16px; }
+.mb-6 { margin-bottom: 24px; }
+.mb-8 { margin-bottom: 32px; }
+.mb-12 { margin-bottom: 48px; }
+.mb-16 { margin-bottom: 64px; }
+.mx-2 { margin-left: 8px; margin-right: 8px; }
+.mr-4 { margin-right: 16px; }
+
+/* Pulse animation for status dots */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.animate-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}

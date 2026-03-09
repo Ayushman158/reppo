@@ -1,0 +1,137 @@
+.complete-container {
+    padding: var(--space-6);
+    max-width: 600px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: radial-gradient(circle at center, var(--brand-dim) 0%, var(--bg) 70%);
+    position: relative;
+    overflow: hidden;
+}
+
+.confetti-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.c-particle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    opacity: 0;
+    animation: particleBurst 1.2s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+}
+
+.content-layer {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+}
+
+.check-ring {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto var(--space-6) auto;
+}
+
+.check-svg {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke-width: 6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.circle-path {
+    stroke: var(--green);
+    stroke-dasharray: 283;
+    stroke-dashoffset: 283;
+    animation: drawCircle 0.8s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.check-path {
+    stroke: #fff;
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    animation: drawCircle 0.6s 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.title-complete {
+    font-size: 2.5rem;
+    color: #fff;
+    margin-bottom: var(--space-8);
+    opacity: 0;
+}
+
+.stats-row {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-4);
+    margin-bottom: var(--space-8);
+}
+
+.c-stat-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.c-label {
+    font-size: 0.75rem;
+    color: var(--text3);
+    margin-bottom: var(--space-1);
+    letter-spacing: 0.1em;
+}
+
+.c-val {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.c-unit {
+    font-size: 0.875rem;
+    color: var(--text2);
+    margin-left: 2px;
+}
+
+.streak-card {
+    background: rgba(255, 184, 0, 0.1);
+    border: 1px solid rgba(255, 184, 0, 0.3);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    margin: 0 auto var(--space-8) auto;
+    max-width: 200px;
+    box-shadow: 0 0 40px rgba(255, 184, 0, 0.15);
+}
+
+.flame-icon {
+    font-size: 3rem;
+    margin-bottom: var(--space-2);
+    animation: pulse 2s infinite;
+}
+
+.streak-count {
+    font-size: 4rem;
+    color: var(--amber);
+    line-height: 1;
+    margin-bottom: var(--space-1);
+}
+
+.streak-label {
+    font-size: 0.875rem;
+    color: var(--amber-dim);
+    letter-spacing: 0.05em;
+}
+
+.actions {
+    margin-top: auto;
+}
