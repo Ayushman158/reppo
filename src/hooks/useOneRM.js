@@ -16,6 +16,9 @@ export function useOneRM(exerciseId, { repMin = 6, repMax = 8 } = {}) {
   const [trend, setTrend] = useState('flat')
   const [plateaued, setPlateaued] = useState(false)
   const [loading, setLoading] = useState(true)
+  // Last session's best set — shown as context in the workout logger
+  const [lastWeight, setLastWeight] = useState(null)
+  const [lastReps, setLastReps] = useState(null)
 
   useEffect(() => {
     if (!user || !exerciseId) {
@@ -70,6 +73,14 @@ export function useOneRM(exerciseId, { repMin = 6, repMax = 8 } = {}) {
         }
       })
 
+      // Expose most recent session's best set for pre-fill in workout logger
+      const sortedDates = Object.keys(bySession).sort().reverse()
+      if (sortedDates.length > 0) {
+        const last = bySession[sortedDates[0]]
+        setLastWeight(last.weight)
+        setLastReps(last.reps)
+      }
+
       const recentSets = Object.values(bySession).slice(0, 4)
 
       // Calculate rolling 1RM
@@ -97,5 +108,5 @@ export function useOneRM(exerciseId, { repMin = 6, repMax = 8 } = {}) {
     load()
   }, [user, exerciseId, repMin, repMax])
 
-  return { oneRM, target, trend, plateaued, loading }
+  return { oneRM, target, trend, plateaued, lastWeight, lastReps, loading }
 }

@@ -89,17 +89,37 @@
 
 .ex-block-header {
     display: flex;
-    align-items: baseline;
+    align-items: flex-start;
     justify-content: space-between;
     margin-bottom: var(--space-3);
     padding: 0 4px;
-    /* Align with inputs */
+    gap: var(--space-3);
+}
+
+.ex-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .ex-title {
     font-size: var(--text-lg);
     font-weight: 700;
     color: var(--ink);
+    line-height: 1.2;
+}
+
+.ex-last {
+    opacity: 0.7;
+}
+
+/* Completed exercise block */
+.ex-complete {
+    opacity: 0.6;
+}
+.ex-complete .ex-title {
+    text-decoration: line-through;
+    text-decoration-color: var(--done);
 }
 
 .ex-ai-target {
@@ -154,22 +174,36 @@
     font-family: var(--font-mono);
     font-size: var(--text-lg);
     cursor: text;
-    color: var(--ink3);
-    /* Inactive target color */
 }
 
+.set-val-pending {
+    color: var(--target);
+    font-weight: 600;
+}
+
+.set-val-done {
+    color: var(--ink2);
+    font-weight: 400;
+}
+
+/* Thumb-friendly check button — 44px minimum touch target per Apple HIG */
 .set-check {
-    width: 32px;
-    height: 32px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
-    border: 1px solid var(--border2);
+    border: 2px solid var(--border2);
     background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #fff;
     cursor: pointer;
-    transition: all var(--ease);
+    transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    flex-shrink: 0;
+}
+
+.set-check:active {
+    transform: scale(0.88);
 }
 
 .set-check.checked {

@@ -2,15 +2,21 @@ import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDashboardData } from '@/hooks/useDashboardData'
 import { useWorkoutStore } from '@/store/workoutStore'
+import { useAuthStore } from '@/store/authStore'
 import { useOneRM } from '@/hooks/useOneRM'
 import './DashboardPage.css'
 
 function NotebookHeader() {
     const navigate = useNavigate()
+    const user = useAuthStore(s => s.user)
+    const name = user?.user_metadata?.name || user?.email || ''
+    const initials = name
+        ? name.split(/[\s@]/).filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase()
+        : '?'
     return (
         <header className="notebook-header">
             <div className="notebook-logo">REP<span className="po">PO</span></div>
-            <div className="avatar-circle" onClick={() => navigate('/app/settings')}>A</div>
+            <div className="avatar-circle" onClick={() => navigate('/app/settings')}>{initials}</div>
         </header>
     )
 }
@@ -145,8 +151,16 @@ export default function DashboardPage() {
 
     if (loading) {
         return (
-            <div style={{ padding: 40, textAlign: 'center', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div className="text-ink3 animate-pulse text-sm font-mono">Loading Notebook...</div>
+            <div className="notebook-container">
+                <div className="notebook-header">
+                    <div className="notebook-logo">REP<span className="po">PO</span></div>
+                    <div className="avatar-circle skeleton-block" style={{ width: 32, height: 32 }} />
+                </div>
+                <div className="skeleton-block" style={{ height: 44, borderRadius: 100, marginBottom: 24 }} />
+                <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+                    {[0,1,2].map(i => <div key={i} className="skeleton-block" style={{ height: 64, flex: 1, borderRadius: 'var(--radius-xl)' }} />)}
+                </div>
+                <div className="skeleton-block" style={{ height: 200, borderRadius: 'var(--radius-lg)' }} />
             </div>
         )
     }

@@ -1,72 +1,63 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useWorkoutStore } from '@/store/workoutStore'
-import { useDashboardData } from '@/hooks/useDashboardData' // For easy stat pulling
-import Button from '@/components/ui/Button'
 import './SessionCompletePage.css'
 
 export default function SessionCompletePage() {
     const navigate = useNavigate()
-    const activeSession = useWorkoutStore(s => s.activeSession)
-    const { data } = useDashboardData() // Could pass state via router, but doing this for simplicity
+    const { completedSession, clearCompletedSession } = useWorkoutStore()
+
     const [statsVisible, setStatsVisible] = useState(false)
     const [streakVisible, setStreakVisible] = useState(false)
     const [streakCount, setStreakCount] = useState(0)
 
     useEffect(() => {
-        // Redirect if they land here without finishing a session
-        if (!activeSession) {
+        if (!completedSession) {
             navigate('/app')
+            return
         }
 
-        // Sequence Animations
         const t1 = setTimeout(() => setStatsVisible(true), 1200)
         const t2 = setTimeout(() => {
             setStreakVisible(true)
-            // Animate streak count-up
             let current = 0
-            const target = data?.stats?.streak || 1
+            const target = 1
             const interval = setInterval(() => {
                 current += 1
                 setStreakCount(current)
                 if (current >= target) clearInterval(interval)
-            }, 50)
+            }, 80)
         }, 2000)
 
-        return () => {
-            clearTimeout(t1)
-            clearTimeout(t2)
-        }
-    }, [activeSession, navigate, data])
+        return () => { clearTimeout(t1); clearTimeout(t2) }
+    }, [completedSession, navigate])
 
-    if (!activeSession) return null
+    if (!completedSession) return null
 
-    // For confetti
+    const durationMin = Math.round((completedSession.durationSeconds || 0) / 60)
+    const volume = completedSession.volume || 0
+    const prCount = completedSession.prCount || 0
+
     const particles = Array.from({ length: 40 }).map(() => ({
         tx: `${(Math.random() - 0.5) * 400}px`,
         ty: `${(Math.random() - 1) * 600}px`,
         tr: `${Math.random() * 360}deg`,
         delay: `${Math.random() * 0.5}s`,
         bg: ['#FFB800', '#22C55E', '#4F7EFF', '#FFFFFF'][Math.floor(Math.random() * 4)],
-        size: `${Math.random() * 10 + 5}px`
+        size: `${Math.random() * 10 + 5}px`,
     }))
 
     return (
         <div className="complete-container">
-            {/* Confetti Explosion Layer */}
             <div className="confetti-layer">
                 {particles.map((p, i) => (
                     <div
                         key={i}
                         className="c-particle"
                         style={{
-                            '--tx': p.tx,
-                            '--ty': p.ty,
-                            '--tr': p.tr,
-                            background: p.bg,
-                            width: p.size,
-                            height: p.size,
-                            animationDelay: p.delay
+                            '--tx': p.tx, '--ty': p.ty, '--tr': p.tr,
+                            background: p.bg, width: p.size, height: p.size,
+                            animationDelay: p.delay,
                         }}
                     />
                 ))}
@@ -88,15 +79,17 @@ export default function SessionCompletePage() {
                     <div className="stats-row animate-slide-up-fade">
                         <div className="c-stat-box">
                             <span className="c-label">VOLUME</span>
-                            <span className="c-val">{Math.floor(Math.random() * 5000 + 3000)}<span className="c-unit">kg</span></span>
+                            <span className="c-val">{volume}<span className="c-unit">kg</span></span>
                         </div>
                         <div className="c-stat-box">
                             <span className="c-label">TIME</span>
-                            <span className="c-val">45<span className="c-unit">min</span></span>
+                            <span className="c-val">{durationMin || '—'}<span className="c-unit">min</span></span>
                         </div>
                         <div className="c-stat-box">
                             <span className="c-label">PRs</span>
-                            <span className="c-val text-pr">2<span className="c-unit text-pr">🏆</span></span>
+                            <span className="c-val" style={{ color: prCount > 0 ? 'var(--gold)' : undefined }}>
+                                {prCount}<span className="c-unit">{prCount > 0 ? ' 🏆' : ''}</span>
+                            </span>
                         </div>
                     </div>
                 )}
@@ -109,15 +102,16 @@ export default function SessionCompletePage() {
                     </div>
                 )}
 
-                <div className="actions animate-fade-up" style={{ animationDelay: '3s', animationFillMode: 'both' }}>
-                    <Button variant="ghost" className="w-full">VIEW BREAKDOWN</Button>
-                    <Button
-                        className="w-full mt-4"
-                        onClick={() => navigate('/app')}
-                        style={{ height: '64px', fontSize: '1.25rem', background: '#fff', color: '#000' }}
+                <div className="complete-actions animate-fade-up" style={{ animationDelay: '3s', animationFillMode: 'both' }}>
+                    <button
+                        className="complete-done-btn"
+                        onClick={() => {
+                            clearCompletedSession()
+                            navigate('/app')
+                        }}
                     >
-                        DONE
-                    </Button>
+                        Back to Notebook
+                    </button>
                 </div>
             </div>
         </div>
