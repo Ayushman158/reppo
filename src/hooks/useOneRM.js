@@ -46,7 +46,7 @@ export function useOneRM(exerciseId, { repMin = 6, repMax = 8 } = {}) {
           .select('value_kg')
           .eq('exercise_id', exerciseId)
           .eq('user_id', user.id)
-          .single()
+          .maybeSingle()
 
         if (estRm) {
           setOneRM(estRm.value_kg)

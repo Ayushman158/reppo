@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useWorkoutStore } from '@/store/workoutStore'
 import { useAuthStore } from '@/store/authStore'
@@ -139,7 +139,9 @@ function ExerciseBlock({ planEx }) {
         <div className={`exercise-block ${allDone ? 'ex-complete' : ''}`}>
             <div className="ex-block-header">
                 <div className="ex-title-group">
-                    <h3 className="ex-title">{planEx.name}</h3>
+                    <Link to={`/app/exercise/${planEx.exercise_id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                        <h3 className="ex-title">{planEx.name}</h3>
+                    </Link>
                     {lastWeight && (
                         <div className="ex-last font-mono text-xs text-ink3">
                             last · {lastWeight}kg × {lastReps}
