@@ -9,7 +9,7 @@ export function useDashboardData() {
         planExercises: [],
         recentWorkouts: [],
         plateauAlerts: [],
-        stats: { streak: 0, topRM: 0, prCount: 0 }
+        stats: { streak: 0, topRM: 0, prCount: 0, workoutsThisWeek: 0, avgWorkoutTimeStr: null, avgWorkoutTimeDate: null }
     })
     const [loading, setLoading] = useState(true)
 
@@ -149,6 +149,46 @@ export function useDashboardData() {
 
                 const topRM = top1rms?.[0]?.value_kg || 0
 
+                // Average Workout Time (for contextual nudges)
+                let avgWorkoutTimeStr = null
+                let avgWorkoutTimeDate = null
+
+                if (userWorkouts && userWorkouts.length > 0) {
+                    const { data: times } = await supabase
+                        .from('workouts')
+                        .select('started_at')
+                        .eq('user_id', user.id)
+                        .order('started_at', { ascending: false })
+                        .limit(10)
+
+                    if (times && times.length > 0) {
+                        let totalMinutes = 0
+                        times.forEach(w => {
+                            const d = new Date(w.started_at)
+                            totalMinutes += (d.getHours() * 60) + d.getMinutes()
+                        })
+                        const avgMins = Math.round(totalMinutes / times.length)
+                        const hr = Math.floor(avgMins / 60)
+                        const mn = avgMins % 60
+
+                        // String for display if needed
+                        const ampm = hr >= 12 ? 'PM' : 'AM'
+                        const hr12 = hr % 12 || 12
+                        avgWorkoutTimeStr = `${hr12}:${mn.toString().padStart(2, '0')} ${ampm}`
+
+                        // Date object for tomorrow at that time (for scheduling)
+                        const tmrw = new Date()
+                        tmrw.setDate(tmrw.getDate() + 1)
+                        tmrw.setHours(hr, mn, 0, 0)
+
+                        // If that time tomorrow is actually in the past (e.g. edge case if user trains at 11:59PM), add another day
+                        if (tmrw.getTime() < Date.now()) {
+                            tmrw.setDate(tmrw.getDate() + 1)
+                        }
+                        avgWorkoutTimeDate = tmrw
+                    }
+                }
+
                 // Plateau alerts
                 const { data: alertsData } = await supabase
                     .from('plateau_alerts')
@@ -165,7 +205,9 @@ export function useDashboardData() {
                         streak: recentWk?.length || 0, // Simplified streak
                         workoutsThisWeek: workoutsThisWeek || 0,
                         topRM,
-                        prCount: totalPrs
+                        prCount: totalPrs,
+                        avgWorkoutTimeStr,
+                        avgWorkoutTimeDate
                     }
                 })
             } catch (err) {

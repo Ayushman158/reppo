@@ -270,11 +270,66 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.05) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.05) 50%, transparent 100%);
   animation: shimmer 1.5s infinite;
 }
 
 @keyframes shimmer {
-  from { transform: translateX(-100%); }
-  to   { transform: translateX(100%); }
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.nudge-banner {
+  background: var(--paper2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  margin-bottom: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  box-shadow: var(--shadow-sm);
+}
+
+.nudge-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nudge-title {
+  font-weight: 700;
+  color: var(--ink);
+  font-size: var(--text-base);
+}
+
+.nudge-sub {
+  font-size: var(--text-sm);
+  color: var(--ink2);
+}
+
+.nudge-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
+}
+
+.nudge-btn {
+  background: transparent;
+  border: none;
+  font-size: var(--text-sm);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: opacity var(--ease);
+}
+
+.nudge-btn:active {
+  opacity: 0.6;
 }

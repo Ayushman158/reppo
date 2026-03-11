@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { useWorkoutStore } from '@/store/workoutStore'
 import { useAuthStore } from '@/store/authStore'
 import { useOneRM } from '@/hooks/useOneRM'
+import { useDashboardData } from '@/hooks/useDashboardData'
 
 import './WorkoutPage.css'
 
@@ -205,6 +206,7 @@ export default function WorkoutPage() {
     const navigate = useNavigate()
     const { user } = useAuthStore()
     const { activeSession, sets, endSession } = useWorkoutStore()
+    const { data: dashData } = useDashboardData()
     const [isFinishing, setIsFinishing] = useState(false)
     const [sessionName, setSessionName] = useState('')
     const elapsed = useElapsedTime(activeSession?.startedAt)
@@ -257,6 +259,22 @@ export default function WorkoutPage() {
             if (setsToInsert.length > 0) {
                 const { error: setsErr } = await supabase.from('sets').insert(setsToInsert)
                 if (setsErr) throw setsErr
+            }
+
+            // ── SCHEDULE THE NUDGE (SPRINT 5) ──
+            if (Notification.permission === 'granted' && dashData?.stats?.avgWorkoutTimeDate && navigator.serviceWorker.controller) {
+                const triggerInMs = dashData.stats.avgWorkoutTimeDate.getTime() - Date.now()
+                // Only schedule if the date is actually in the future
+                if (triggerInMs > 0) {
+                    navigator.serviceWorker.controller.postMessage({
+                        type: 'SCHEDULE_NUDGE',
+                        payload: {
+                            title: 'Time to train.',
+                            body: `Your next session note is ready. Let's get to work.`,
+                            delayMs: triggerInMs
+                        }
+                    })
+                }
             }
 
             navigate('/app/workout/complete')

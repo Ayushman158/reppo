@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDashboardData } from '@/hooks/useDashboardData'
 import { useWorkoutStore } from '@/store/workoutStore'
@@ -36,6 +36,45 @@ function StatPills({ stats }) {
             <div className="stat-pill">
                 <div className="stat-val text-gold">{stats.prCount}</div>
                 <div className="stat-label">Total PRs</div>
+            </div>
+        </div>
+    )
+}
+
+function NotificationBanner() {
+    const [status, setStatus] = useState(Notification.permission)
+    const [dismissed, setDismissed] = useState(localStorage.getItem('reppo-nudge-dismissed') === 'true')
+
+    if (status !== 'default' || dismissed) return null
+
+    const handleEnable = async () => {
+        const p = await Notification.requestPermission()
+        setStatus(p)
+        if (p === 'granted') {
+            // Optional: send an immediate test ping just so they know it works
+            if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({
+                    type: 'SCHEDULE_NUDGE',
+                    payload: { title: 'Reminders Enabled', body: 'We will nudge you when it\'s time to train.', delayMs: 100 }
+                })
+            }
+        }
+    }
+
+    const handleDismiss = () => {
+        localStorage.setItem('reppo-nudge-dismissed', 'true')
+        setDismissed(true)
+    }
+
+    return (
+        <div className="nudge-banner animate-fade-in">
+            <div className="nudge-text">
+                <span className="nudge-title">Enable Workout Nudges</span>
+                <span className="nudge-sub">Get a gentle reminder when it's time to train.</span>
+            </div>
+            <div className="nudge-actions">
+                <button className="nudge-btn text-ink3" onClick={handleDismiss}>Not now</button>
+                <button className="nudge-btn text-target font-bold" onClick={handleEnable}>Enable</button>
             </div>
         </div>
     )
@@ -187,6 +226,8 @@ export default function DashboardPage() {
             </div>
 
             <StatPills stats={data.stats} />
+
+            <NotificationBanner />
 
             <TodaysNote splitDay={data.splitDay} planExercises={data.planExercises} />
 
