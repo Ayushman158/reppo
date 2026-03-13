@@ -68,6 +68,128 @@ function ExerciseSearch({ onSelect, onClose }) {
     )
 }
 
+// ─── Smart Paste: parse plain text into structured exercises ───
+function PasteRoutine({ onParsed, onClose }) {
+    const [text, setText] = useState('')
+    const [parsing, setParsing] = useState(false)
+    const textRef = useRef(null)
+
+    useEffect(() => { textRef.current?.focus() }, [])
+
+    async function handleParse() {
+        if (!text.trim() || parsing) return
+        setParsing(true)
+
+        // Fetch all exercises from the library for fuzzy matching
+        const { data: allExercises } = await supabase
+            .from('exercises')
+            .select('id, name, equipment, muscle_group')
+
+        const exerciseLib = allExercises || []
+
+        // Normalize a string for matching
+        const norm = s => s.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim()
+
+        // Build a lookup: normalized name → exercise object
+        const libMap = {}
+        exerciseLib.forEach(ex => { libMap[norm(ex.name)] = ex })
+        const libNames = Object.keys(libMap)
+
+        // Parse lines
+        const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
+        const result = [] // [{ exercise, sets: [{ weight_kg, reps, logged: false }] }]
+
+        for (const line of lines) {
+            const normalized = norm(line)
+            if (!normalized) continue
+
+            // Try to extract weight × reps from the line
+            // Patterns: "80kg x 8", "80 x 8", "80x8", "80kg × 8", "80 × 8"
+            const numMatch = line.match(/(\d+(?:\.\d+)?)\s*(?:kg)?\s*[x×]\s*(\d+)/i)
+            const weight = numMatch ? parseFloat(numMatch[1]) : null
+            const reps = numMatch ? parseInt(numMatch[2]) : null
+
+            // Extract just the exercise name part (before numbers)
+            const namePart = norm(line.replace(/(\d+(?:\.\d+)?)\s*(?:kg)?\s*[x×]\s*(\d+).*/i, '').trim())
+
+            // Find the best match from the library
+            let bestMatch = null
+            let bestScore = 0
+
+            for (const libName of libNames) {
+                // Check if the line contains the exercise name, or vice versa
+                const searchIn = namePart || normalized
+                if (searchIn.includes(libName) || libName.includes(searchIn)) {
+                    const score = libName.length // longer match = better
+                    if (score > bestScore) {
+                        bestScore = score
+                        bestMatch = libMap[libName]
+                    }
+                }
+            }
+
+            // Also try partial word matching (e.g. "bench" matches "bench press")
+            if (!bestMatch && namePart.length >= 3) {
+                for (const libName of libNames) {
+                    const words = namePart.split(' ')
+                    for (const word of words) {
+                        if (word.length >= 3 && libName.includes(word)) {
+                            const score = word.length
+                            if (score > bestScore) {
+                                bestScore = score
+                                bestMatch = libMap[libName]
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (bestMatch) {
+                // Check if this exercise was already added (merge sets)
+                const existing = result.find(r => r.exercise.id === bestMatch.id)
+                const set = { weight_kg: weight || 20, reps: reps || 8, logged: false }
+
+                if (existing) {
+                    existing.sets.push(set)
+                } else {
+                    result.push({
+                        exercise: bestMatch,
+                        sets: weight ? [set] : [
+                            { weight_kg: 20, reps: 8, logged: false },
+                            { weight_kg: 20, reps: 8, logged: false },
+                            { weight_kg: 20, reps: 8, logged: false },
+                        ]
+                    })
+                }
+            }
+        }
+
+        setParsing(false)
+        onParsed(result)
+        onClose()
+    }
+
+    return (
+        <div className="ex-search-overlay" onClick={onClose}>
+            <div className="ex-search-modal paste-modal" onClick={e => e.stopPropagation()}>
+                <div className="paste-header">Paste your routine</div>
+                <p className="paste-hint">Paste from Apple Notes, Google Keep, or anywhere. One exercise per line.</p>
+                <textarea
+                    ref={textRef}
+                    className="paste-textarea"
+                    placeholder={`Bench Press 80kg x 8\nIncline DB Press 30 x 10\nLateral Raise\nTricep Pushdown 25kg x 12`}
+                    value={text}
+                    onChange={e => setText(e.target.value)}
+                    rows={8}
+                />
+                <button className="paste-go-btn" onClick={handleParse} disabled={parsing || !text.trim()}>
+                    {parsing ? 'Parsing…' : `Structure It →`}
+                </button>
+            </div>
+        </div>
+    )
+}
+
 // ─── Set Row ───
 function SetRow({ set, index, onToggle, onEdit }) {
     const w = set.weight_kg ?? 0
@@ -213,6 +335,7 @@ export default function WorkoutPage() {
     const [exercises, setExercises] = useState([]) // [{ exercise, sets }]
     const [lastDataMap, setLastDataMap] = useState({}) // { exerciseId: { weight_kg, reps } }
     const [showSearch, setShowSearch] = useState(false)
+    const [showPaste, setShowPaste] = useState(false)
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [notes, setNotes] = useState('')
@@ -304,6 +427,15 @@ export default function WorkoutPage() {
         ]
 
         setExercises(prev => [...prev, { exercise: ex, sets: defaultSets }])
+    }
+
+    // Handle pasted routine
+    async function handlePastedRoutine(parsedExercises) {
+        if (parsedExercises.length === 0) return
+        // Fetch last data for all new exercises
+        const newExIds = parsedExercises.map(p => p.exercise.id)
+        await fetchLastData(newExIds, id)
+        setExercises(prev => [...prev, ...parsedExercises])
     }
 
     function handleRemoveExercise(index) {
@@ -402,14 +534,26 @@ export default function WorkoutPage() {
                 ))}
             </div>
 
-            <button className="add-exercise-btn" onClick={() => setShowSearch(true)}>
-                + Add Exercise
-            </button>
+            <div className="add-buttons-row">
+                <button className="add-exercise-btn" onClick={() => setShowSearch(true)}>
+                    + Add Exercise
+                </button>
+                <button className="paste-btn" onClick={() => setShowPaste(true)}>
+                    📋 Paste Routine
+                </button>
+            </div>
 
             {showSearch && (
                 <ExerciseSearch
                     onSelect={handleAddExercise}
                     onClose={() => setShowSearch(false)}
+                />
+            )}
+
+            {showPaste && (
+                <PasteRoutine
+                    onParsed={handlePastedRoutine}
+                    onClose={() => setShowPaste(false)}
                 />
             )}
         </div>

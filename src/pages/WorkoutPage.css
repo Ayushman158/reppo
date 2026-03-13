@@ -234,9 +234,16 @@
     margin-left: auto;
 }
 
-/* ── Add Exercise Button ── */
+/* ── Add Buttons Row ── */
+.add-buttons-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+    margin-bottom: 24px;
+}
+
 .add-exercise-btn {
-    width: 100%;
+    flex: 1;
     padding: 14px;
     background: transparent;
     border: 1px dashed var(--border2);
@@ -245,13 +252,93 @@
     font-size: 15px;
     font-weight: 600;
     cursor: pointer;
-    margin-top: 4px;
-    margin-bottom: 24px;
     transition: background 0.1s;
 }
 
 .add-exercise-btn:active {
     background: var(--paper2);
+}
+
+.paste-btn {
+    flex: 1;
+    padding: 14px;
+    background: var(--paper2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--ink);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.paste-btn:active {
+    background: var(--paper3);
+}
+
+/* ── Paste Modal ── */
+.paste-modal {
+    max-height: 85vh;
+}
+
+.paste-header {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--ink);
+    margin-bottom: 4px;
+}
+
+.paste-hint {
+    font-size: 13px;
+    color: var(--ink3);
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.paste-textarea {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--paper2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: var(--font-mono);
+    color: var(--ink);
+    resize: none;
+    outline: none;
+    line-height: 1.6;
+    margin-bottom: 12px;
+}
+
+.paste-textarea:focus {
+    border-color: var(--target);
+}
+
+.paste-textarea::placeholder {
+    color: var(--ink3);
+}
+
+.paste-go-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--target);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+.paste-go-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.paste-go-btn:active:not(:disabled) {
+    opacity: 0.85;
 }
 
 /* ── Exercise Search Modal ── */
