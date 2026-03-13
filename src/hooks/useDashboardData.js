@@ -9,7 +9,8 @@ export function useDashboardData() {
         planExercises: [],
         recentWorkouts: [],
         plateauAlerts: [],
-        stats: { streak: 0, topRM: 0, prCount: 0, workoutsThisWeek: 0, avgWorkoutTimeStr: null, avgWorkoutTimeDate: null }
+        stats: { streak: 0, topRM: 0, prCount: 0, workoutsThisWeek: 0, avgWorkoutTimeStr: null, avgWorkoutTimeDate: null },
+        error: null
     })
     const [loading, setLoading] = useState(true)
 
@@ -214,6 +215,7 @@ export function useDashboardData() {
                 })
             } catch (err) {
                 console.error('Error loading dashboard data:', err)
+                setData(prev => ({ ...prev, error: err.message || err.toString() }))
             } finally {
                 setLoading(false)
             }
