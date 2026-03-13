@@ -69,6 +69,62 @@ function ExerciseSearch({ onSelect, onClose }) {
 }
 
 // ─── Smart Paste: parse plain text into structured exercises ───
+const SKIP_PATTERNS = [
+    /^(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i,
+    /^(day\s*\d|week\s*\d)/i,
+    /^why[:]/i,
+    /^[•\-\*]\s/,
+    /^[➕⸻━─═]/,
+    /^(cardio|abs circuit|daily|every day|consistency|that'?s it)/i,
+    /^(light |rest|recovery|stretch)/i,
+    /^[A-Z\s–—-]+$/,  // ALL-CAPS day headers like "MONDAY – Upper"
+    /^\d+\s*(min|sec|s\/side)/i,
+    /^(add|why|note|tip)/i,
+]
+
+function isSkipLine(line) {
+    const trimmed = line.trim()
+    if (trimmed.length < 3) return true
+    if (/^[⸻━─═\-_*]{3,}$/.test(trimmed)) return true  // separators
+    for (const pat of SKIP_PATTERNS) {
+        if (pat.test(trimmed)) return true
+    }
+    // Skip lines that are just parenthetical notes
+    if (/^\(.*\)$/.test(trimmed)) return true
+    return false
+}
+
+function parseSetRep(line) {
+    // Format: "3x5–8", "3x5-8", "2x10–12", "3–4x12–20", "3x8", "2 sets"
+    // Also: "80kg x 8", "80 x 8" 
+    const dashChars = '[\\-–—]'
+
+    // Pattern 1: SETSxREP_MIN–REP_MAX  e.g. "3x5–8" or "3-4x12-20"
+    const rangeMatch = line.match(new RegExp(`(\\d+)(?:${dashChars}(\\d+))?\\s*[x×]\\s*(\\d+)(?:${dashChars}(\\d+))?`, 'i'))
+    if (rangeMatch) {
+        const setCount = parseInt(rangeMatch[1])
+        const repMin = parseInt(rangeMatch[3])
+        const repMax = rangeMatch[4] ? parseInt(rangeMatch[4]) : repMin
+        // Use the middle of the rep range
+        const reps = Math.round((repMin + repMax) / 2)
+        return { setCount: Math.min(setCount, 8), reps, weight: null }
+    }
+
+    // Pattern 2: "80kg x 8" weight-based
+    const weightMatch = line.match(/(\d+(?:\.\d+)?)\s*kg\s*[x×]\s*(\d+)/i)
+    if (weightMatch) {
+        return { setCount: 1, reps: parseInt(weightMatch[2]), weight: parseFloat(weightMatch[1]) }
+    }
+
+    // Pattern 3: "2 sets" only
+    const setsOnly = line.match(/(\d+)\s*sets?/i)
+    if (setsOnly) {
+        return { setCount: parseInt(setsOnly[1]), reps: 10, weight: null }
+    }
+
+    return null
+}
+
 function PasteRoutine({ onParsed, onClose }) {
     const [text, setText] = useState('')
     const [parsing, setParsing] = useState(false)
@@ -80,88 +136,75 @@ function PasteRoutine({ onParsed, onClose }) {
         if (!text.trim() || parsing) return
         setParsing(true)
 
-        // Fetch all exercises from the library for fuzzy matching
         const { data: allExercises } = await supabase
             .from('exercises')
             .select('id, name, equipment, muscle_group')
 
         const exerciseLib = allExercises || []
+        const norm = s => s.toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim()
 
-        // Normalize a string for matching
-        const norm = s => s.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim()
-
-        // Build a lookup: normalized name → exercise object
         const libMap = {}
         exerciseLib.forEach(ex => { libMap[norm(ex.name)] = ex })
         const libNames = Object.keys(libMap)
 
-        // Parse lines
         const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
-        const result = [] // [{ exercise, sets: [{ weight_kg, reps, logged: false }] }]
+        const result = []
 
         for (const line of lines) {
-            const normalized = norm(line)
-            if (!normalized) continue
+            if (isSkipLine(line)) continue
 
-            // Try to extract weight × reps from the line
-            // Patterns: "80kg x 8", "80 x 8", "80x8", "80kg × 8", "80 × 8"
-            const numMatch = line.match(/(\d+(?:\.\d+)?)\s*(?:kg)?\s*[x×]\s*(\d+)/i)
-            const weight = numMatch ? parseFloat(numMatch[1]) : null
-            const reps = numMatch ? parseInt(numMatch[2]) : null
+            // Extract exercise name: everything before " – 3x" or " - 3x" or " (" 
+            let namePart = line
+                .replace(/\s*[–—-]\s*\d+.*$/, '')     // Remove " – 3x5–8 ..."
+                .replace(/\s*\(.*\)\s*/g, '')           // Remove "(progression lift)"
+                .replace(/\s*\d+\s*[x×]\s*\d+.*$/i, '') // Remove "3x5-8" if no dash separator
+                .replace(/\s*\d+\s*sets?.*$/i, '')       // Remove "2 sets"
+                .trim()
 
-            // Extract just the exercise name part (before numbers)
-            const namePart = norm(line.replace(/(\d+(?:\.\d+)?)\s*(?:kg)?\s*[x×]\s*(\d+).*/i, '').trim())
+            const normalizedName = norm(namePart)
+            if (normalizedName.length < 3) continue
 
-            // Find the best match from the library
+            // Fuzzy match against library
             let bestMatch = null
             let bestScore = 0
 
             for (const libName of libNames) {
-                // Check if the line contains the exercise name, or vice versa
-                const searchIn = namePart || normalized
-                if (searchIn.includes(libName) || libName.includes(searchIn)) {
-                    const score = libName.length // longer match = better
-                    if (score > bestScore) {
-                        bestScore = score
-                        bestMatch = libMap[libName]
-                    }
+                if (normalizedName === libName) {
+                    bestMatch = libMap[libName]; bestScore = 1000; break
+                }
+                if (normalizedName.includes(libName) || libName.includes(normalizedName)) {
+                    const score = Math.min(normalizedName.length, libName.length)
+                    if (score > bestScore) { bestScore = score; bestMatch = libMap[libName] }
                 }
             }
 
-            // Also try partial word matching (e.g. "bench" matches "bench press")
-            if (!bestMatch && namePart.length >= 3) {
+            // Partial word match ("bench" → "bench press", "lateral" → "lateral raise")
+            if (!bestMatch) {
+                const words = normalizedName.split(' ')
                 for (const libName of libNames) {
-                    const words = namePart.split(' ')
                     for (const word of words) {
-                        if (word.length >= 3 && libName.includes(word)) {
+                        if (word.length >= 4 && libName.includes(word)) {
                             const score = word.length
-                            if (score > bestScore) {
-                                bestScore = score
-                                bestMatch = libMap[libName]
-                            }
+                            if (score > bestScore) { bestScore = score; bestMatch = libMap[libName] }
                         }
                     }
                 }
             }
 
-            if (bestMatch) {
-                // Check if this exercise was already added (merge sets)
-                const existing = result.find(r => r.exercise.id === bestMatch.id)
-                const set = { weight_kg: weight || 20, reps: reps || 8, logged: false }
+            if (!bestMatch) continue
 
-                if (existing) {
-                    existing.sets.push(set)
-                } else {
-                    result.push({
-                        exercise: bestMatch,
-                        sets: weight ? [set] : [
-                            { weight_kg: 20, reps: 8, logged: false },
-                            { weight_kg: 20, reps: 8, logged: false },
-                            { weight_kg: 20, reps: 8, logged: false },
-                        ]
-                    })
-                }
+            const parsed = parseSetRep(line)
+            const setCount = parsed?.setCount || 3
+            const reps = parsed?.reps || 8
+            const weight = parsed?.weight || null
+
+            // Don't duplicate — if the same exercise appears again in a different day, just add it
+            const sets = []
+            for (let i = 0; i < setCount; i++) {
+                sets.push({ weight_kg: weight || 20, reps, logged: false })
             }
+
+            result.push({ exercise: bestMatch, sets })
         }
 
         setParsing(false)
@@ -173,14 +216,14 @@ function PasteRoutine({ onParsed, onClose }) {
         <div className="ex-search-overlay" onClick={onClose}>
             <div className="ex-search-modal paste-modal" onClick={e => e.stopPropagation()}>
                 <div className="paste-header">Paste your routine</div>
-                <p className="paste-hint">Paste from Apple Notes, Google Keep, or anywhere. One exercise per line.</p>
+                <p className="paste-hint">Paste your entire week from Notes. Day headers and notes are auto-skipped.</p>
                 <textarea
                     ref={textRef}
                     className="paste-textarea"
-                    placeholder={`Bench Press 80kg x 8\nIncline DB Press 30 x 10\nLateral Raise\nTricep Pushdown 25kg x 12`}
+                    placeholder={`Bench Press – 3x5–8\nBarbell Row – 3x6–10\nLateral Raises – 3x12–20\nTricep Pushdown – 2x8–12`}
                     value={text}
                     onChange={e => setText(e.target.value)}
-                    rows={8}
+                    rows={10}
                 />
                 <button className="paste-go-btn" onClick={handleParse} disabled={parsing || !text.trim()}>
                     {parsing ? 'Parsing…' : `Structure It →`}
@@ -191,7 +234,7 @@ function PasteRoutine({ onParsed, onClose }) {
 }
 
 // ─── Set Row ───
-function SetRow({ set, index, onToggle, onEdit }) {
+function SetRow({ set, index, onToggle, onEdit, onDelete, total }) {
     const w = set.weight_kg ?? 0
     const r = set.reps ?? 0
     const done = set.logged
@@ -199,10 +242,7 @@ function SetRow({ set, index, onToggle, onEdit }) {
     return (
         <div className={`set-row ${done ? 'done' : ''}`}>
             <span className="set-num">{index + 1}</span>
-            <button
-                className="set-values"
-                onClick={() => !done && onEdit(index)}
-            >
+            <button className="set-values" onClick={() => onEdit(index)}>
                 {w}kg × {r}
             </button>
             <button
@@ -214,6 +254,9 @@ function SetRow({ set, index, onToggle, onEdit }) {
             >
                 {done ? '✓' : '○'}
             </button>
+            {total > 1 && (
+                <button className="set-delete" onClick={() => onDelete(index)}>🗑</button>
+            )}
         </div>
     )
 }
@@ -222,21 +265,23 @@ function SetRow({ set, index, onToggle, onEdit }) {
 function ExerciseBlock({ exercise, sets, lastData, onUpdateSets, onRemove }) {
     const [editing, setEditing] = useState(null)
     const isBarbell = ['barbell'].includes(exercise.equipment)
-    const targetW = lastData?.weight_kg || 20
-    const targetR = lastData?.reps || 8
-    const plates = isBarbell && targetW > 20 ? calcPlates(targetW) : []
+    const firstW = sets[0]?.weight_kg || 20
+    const plates = isBarbell && firstW > 20 ? calcPlates(firstW) : []
+    const lastW = sets.length > 0 ? sets[sets.length - 1].weight_kg : (lastData?.weight_kg || 20)
+    const lastR = sets.length > 0 ? sets[sets.length - 1].reps : (lastData?.reps || 8)
 
     function handleToggle(i) {
         const newSets = [...sets]
-        if (i < newSets.length) {
-            newSets[i] = { ...newSets[i], logged: !newSets[i].logged }
-        }
+        newSets[i] = { ...newSets[i], logged: !newSets[i].logged }
         onUpdateSets(newSets)
     }
 
+    function handleDelete(i) {
+        onUpdateSets(sets.filter((_, idx) => idx !== i))
+    }
+
     function addSet() {
-        const newSets = [...sets, { weight_kg: targetW, reps: targetR, logged: false }]
-        onUpdateSets(newSets)
+        onUpdateSets([...sets, { weight_kg: lastW, reps: lastR, logged: false }])
     }
 
     function handleEdit(i) {
@@ -250,6 +295,7 @@ function ExerciseBlock({ exercise, sets, lastData, onUpdateSets, onRemove }) {
             ...newSets[editing.index],
             weight_kg: Number(editing.weight_kg),
             reps: Number(editing.reps),
+            logged: newSets[editing.index].logged,
         }
         onUpdateSets(newSets)
         if (navigator.vibrate) navigator.vibrate(10)
@@ -278,8 +324,10 @@ function ExerciseBlock({ exercise, sets, lastData, onUpdateSets, onRemove }) {
                         key={i}
                         set={s}
                         index={i}
+                        total={sets.length}
                         onToggle={handleToggle}
                         onEdit={handleEdit}
+                        onDelete={handleDelete}
                     />
                 ))}
             </div>
@@ -291,6 +339,7 @@ function ExerciseBlock({ exercise, sets, lastData, onUpdateSets, onRemove }) {
                     <span className="editor-label">SET {editing.index + 1}</span>
                     <input
                         type="number"
+                        inputMode="decimal"
                         value={editing.weight_kg}
                         onChange={e => setEditing(p => ({ ...p, weight_kg: e.target.value }))}
                         className="editor-input"
@@ -299,6 +348,7 @@ function ExerciseBlock({ exercise, sets, lastData, onUpdateSets, onRemove }) {
                     <span>kg ×</span>
                     <input
                         type="number"
+                        inputMode="numeric"
                         value={editing.reps}
                         onChange={e => setEditing(p => ({ ...p, reps: e.target.value }))}
                         className="editor-input"
